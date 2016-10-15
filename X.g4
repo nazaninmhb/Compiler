@@ -1,78 +1,109 @@
 
-
+//handle one character variables
   grammar X;
 
-  compilationUnit : functionDefinition ;
+  compilationUnit : variableDeclaration*;
 
   declarationseq
-            : declarationseq declaration
-            | declaration
+            : declaration*
             ;
   declaration
             : functionDefinition
             ;
-
   /* Statements */
 
   statement
-          : expressionStatement
-          | conditionalStatement
+          : scopeStatement
           | jumpStatement
-          | scopeStatement
           | variableDeclaration
-          | listDeclaration
-        //  | iterativeStatement
+        //  | listDeclaration
+          //| assignStatement
         //  | ptfStatement
+        //  | iterativeStatement
           ;
   variableDeclaration
-          : type variable '=' typeIdentifier ';'
+          : type variable '=' variable ';'
+          | type variable '=' typeIdentifier ';'
           | type variable ';'
           ;
+  /*list*/
   listDeclaration
-          : listIdentifier
+          : listType variable ';'
           ;
+  listType
+          : '['label? generalTypes (',' label? generalTypes)* ']' //variable? //chetor begim variable bara akharie? tuye ptf ham hamin mishe
+          | 'list' '(' myInt ')' 'of' generalTypes //variable?
+          ;
+  //listIdentifier
+    //      :
+      //    ;
+  /*ptf*/
+  ptfDeclaration
+          : ptfType ////the last example cant be identified
+          ;
+  ptfType
+          : ptfInput+ ptfOutput //nemidune koja output bashe koja input
+          ;
+  ptfInput
+          : type ('*'type)* '->'
+          ;
+  ptfOutput
+          : type variable ';'
+          ;
+  /*listDeclaration
+          : listIdentifier assignStatement?
+          ;
+  assignStatement
+          : variable '=' variable
+          | variable '=' typeIdentifier
+          | '=' typeIdentifier
+          ;*/
   typeIdentifier
-          : INT
+          : myInt //ptr ham ye identifiere bayad hesab she.
           | charIdentifier
           | stringIdentifier
-          | listIdentifier // nemidunam vaghean koja bezaramaesh
+          //| listIdentifier // nemidunam vaghean koja bezaramaesh
+          //| functionIdentifier
           ;
-
   charIdentifier
-          : '\'' CHAR '\''
+          : '\'' myChar '\''
           ;
   stringIdentifier
-          : '"' CHAR* '"'
+          : '"' myString '"' //okeye? ya chiz dg bashe?
           ;
 
-  listIdentifier
-          : 'list' '(' INT ')' Of typeIdentifier VARNAME?
-          | '[' label? typeIdentifier (',' label? typeIdentifier ) ']' VARNAME?
+  /*listIdentifier
+          : 'list' '(' myInt ')' Of typeIdentifier variable? //tuye list hatman bayad ptr dhashte bashim be onvane ye type
+          | '[' label? typeIdentifier (',' label? typeIdentifier)* ']' variable?
+          ;
+  functionIdentifier
+          : variable '(' typeIdentifier (',' typeIdentifier)* ')'
           ;
   expressionStatement
           : expression
-          ;
+          ;*/
   expression
-          : '(' expression ')'
+          : myInt
+          | variable
+          | '(' expression ')'
           | expression ('*'|'/') expression
           | expression ('+'|'-') expression
           | expression ('&&'|'||') expression
           ;
-  conditionalStatement
-          : If '(' condition ')' statement
-          | If LeftParen condition RightParen statement Else statement
-          ;
+  //conditionalStatement
+    //      : If '(' condition ')' statement
+      //    | If '(' condition ')' statementSeq 'else' statementSeq
+        //  ;
   jumpStatement
-          : Return expression? SemiColon
-          | Break SemiColon
+          : Return expression? ';'
+          | Break ';'
           ;
   scopeStatement
-          : '{' statementSeq '}'
-          | '{' '}'
+          : '{' statementSeq'}'
           ;
+
   statementSeq
           : statement
-          | statementSeq statement
           ;
   condition
           : relationalOperators  //folani relationalOperators folan
@@ -85,7 +116,7 @@
           : declaratorType declarator functionbody
           ;
   typedefDefenition
-          : declaratorType declarationVar As  //statement? | expression?
+          : declaratorType declarationVar 'as'  //statement? | expression?
           ;
 //  forwardDeclaration
   //        :
@@ -109,39 +140,52 @@
           : type variable
           ;
 
-  primitiveType
-          : 'int'
-          | 'char'
-          | 'string' '(' INT ')'
-          ;
-  variable
-          : id=VARNAME
-          ;
   label
-          : VARNAME ':'
+          : variable ':'
           ;
   declarationVar
-          : variable  //motmaen nistam
+          : variable
+          | 'main'  //motmaen nistam
           ;
   functionbody
           : scopeStatement
           ;
-
+  generalTypes
+          : type
+          | ptfType
+          | listType //chera? chon nemishe ptfType ro gozasht tuye type
+          ;         //left recursion bevujud miad, rahe dgeyi be zehnam naresid
   type
-          : primitiveType
-          //| 'void'
-          | variable
-          //| list
-          //| ptf
+          :  primitiveType
+          /*| variable*/
           ;
+  primitiveType
+          : 'int'
+          | 'char'
+          | 'string' '(' myInt ')'
+          ;
+ variable
+         : varname
+         ;
 
+ myString
+         : myChar+
+         ;
+ myChar
+         : Nondigit
+         ;
   /*
-  listDefenition
+  listDefenition*/
+  //accessListMember
+          //: variable AccessIndex
+          //;
+  myInt   : Digit
+          | Minus Digit
+          ;
 
   /*reserved words*/
 
   Of       : 'of'      ;
-  Main     : 'main'    ;
   While    : 'while'   ;
   Break    : 'break'   ;
   Read     : 'read'    ;
@@ -156,10 +200,8 @@
   Else     : 'else'    ;
   In       : 'in'      ;
   Tail     : 'tail'    ;
-  SIZE     : 'Size'    ;
-//  String   : (CHAR)*   ;
-  INT      : Digit+    ;
-  CHAR     : Letter   ;
+  SIZE     : 'size'    ;
+
   /*Operators*/
 
   LeftBrace    : '{' ;
@@ -169,7 +211,7 @@
   Comma        : ',' ;
   Colon        : ':' ;
   SemiColon    : ';' ;
-  PtrToRetrun  : '->';
+  PtrToReturn  : '->';
   RightBracket : '[' ;
   LeftBracket  : ']' ;
   Dot          : '.' ;
@@ -177,7 +219,6 @@
   StringIdentier : ' " ' ;
   Assign         : '='   ;
   PassbyRef      : '$'   ;
-  //CharIdentifier : ' '' ' ;
 
   /*Arithmetic Operators*/
   Star  : '*' ;
@@ -204,14 +245,24 @@
   OR  : '||' ;
   NOT : '!' ;
 
-  fragment Digit
-      : [0-9]
+  varname
+      :   Nondigit
+          (   Nondigit
+          |   Digit
+          )*
       ;
-  Letters
+  /*fragment*/
+  Nondigit
+      :   [a-zA-Z_]
+      ;
+
+  /*fragment*/
+  Digit
+      :   [0-9]+
+      ;
+  /*LETTER
       : [a-zA-Z]
-      ;
-
-
+      ;*/
   BlockComment
       : '/*' .*? '*/' ->skip
       ;
@@ -220,10 +271,10 @@
       : '//' ~[\r\n]* ->skip
       ;
 
-  VARNAME
-      : [a-zA-Z_][a-zA-Z0-9_]*
+  WS:
+      [ \r\t\n\f]+ -> skip
       ;
-  WS
+  /*WS
       : [ \t]+  -> skip
       ;
 
@@ -231,3 +282,4 @@
       :  ( '\r' '\n'?
       |    '\n' ) -> skip
       ;
+*/
