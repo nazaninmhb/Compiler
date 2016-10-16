@@ -32,7 +32,7 @@
           ;
   listType
           : '['label? generalTypes (',' label? generalTypes)* ']' //variable? //chetor begim variable bara akharie? tuye ptf ham hamin mishe
-          | 'list' '(' myInt ')' 'of' generalTypes //variable?
+          | 'list' '(' Int ')' 'of' generalTypes //variable?
           ;
   //listIdentifier
     //      :
@@ -59,18 +59,18 @@
           | '=' typeIdentifier
           ;*/
   typeIdentifier
-          : myInt //ptr ham ye identifiere bayad hesab she.
-          | charIdentifier
-          | stringIdentifier
+          : Int //ptr ham ye identifiere bayad hesab she.
+          | Letter
+          | String
           //| listIdentifier // nemidunam vaghean koja bezaramaesh
           //| functionIdentifier
           ;
-  charIdentifier
+  /*charIdentifier
           : '\'' myChar '\''
           ;
   stringIdentifier
           : '"' myString '"' //okeye? ya chiz dg bashe?
-          ;
+          ;*/
 
   /*listIdentifier
           : 'list' '(' myInt ')' Of typeIdentifier variable? //tuye list hatman bayad ptr dhashte bashim be onvane ye type
@@ -83,7 +83,7 @@
           : expression
           ;*/
   expression
-          : myInt
+          : Int
           | variable
           | '(' expression ')'
           | expression ('*'|'/') expression
@@ -162,26 +162,26 @@
   primitiveType
           : 'int'
           | 'char'
-          | 'string' '(' myInt ')'
+          | 'string' '(' Int ')'
           ;
  variable
-         : varname
+         : Varname
          ;
-
+/*
  myString
          : myChar+
          ;
  myChar
          : Nondigit
-         ;
+         ;*/
   /*
   listDefenition*/
   //accessListMember
           //: variable AccessIndex
           //;
-  myInt   : Digit
+  /*myInt   : Digit
           | Minus Digit
-          ;
+          ;*/
 
   /*reserved words*/
 
@@ -245,20 +245,32 @@
   OR  : '||' ;
   NOT : '!' ;
 
-  varname
+  Int
+      :   Digit+
+      ;
+
+  String
+      :   '\"' .*? '\"'
+      ;
+
+  Letter
+      :   '\'' Nondigit '\''
+      ;
+
+  Varname
       :   Nondigit
           (   Nondigit
           |   Digit
           )*
       ;
-  /*fragment*/
+  fragment
   Nondigit
       :   [a-zA-Z_]
       ;
 
-  /*fragment*/
+  fragment
   Digit
-      :   [0-9]+
+      :   [0-9]
       ;
   /*LETTER
       : [a-zA-Z]
